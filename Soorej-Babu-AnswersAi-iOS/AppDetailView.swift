@@ -245,7 +245,7 @@ struct DetailView: View
             .padding(.vertical, 10)
             .sheet(isPresented: $isPresentingShareSheet)
             {
-                ActivityView(activityItems: [URL(string: "https://i1.sndcdn.com/artworks-000084757910-7c8zws-t500x500.jpg")!])
+                ActivityView(activityItems: [URL(string: slectedCardData.backgroundImageName)!])
             }
         }
         .background(Color.gray.opacity(0.2))
