@@ -14,9 +14,17 @@ struct AppCardData: Codable, Identifiable
     let title: String
     let titleTextColour: String
     let subtitle: String
+    let appCardHeight: Double
     let appIcon: String
     let appName: String
     let appDescription: String
     let inAppPurchasesText: String
     let appBarTextColour: String
+}
+
+struct AppCardDetails: Codable, Identifiable
+{
+    var id = UUID()
+    let highlighText: String
+    let descriptionText: String
 }

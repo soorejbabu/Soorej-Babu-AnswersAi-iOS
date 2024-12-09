@@ -9,13 +9,14 @@ import SwiftUI
 
 struct ContentView: View
 {
-    let dataForCards: [AppCardData] =
+    @State private var dataForCards: [AppCardData] =
     [
         AppCardData(
-            backgroundImageName: "https://www.universetoday.com/wp-content/uploads/2009/04/everest_kalapatthar-1280x720.jpg",
+            backgroundImageName: "https://s.widget-club.com/images/YyiR86zpwIMIfrCZoSs4ulVD9RF3/cfd86476405f1c747b12df21193a061d/4e8c1aff3a1c7d26ada860ea7f295bdb.jpg?q=70&w=500",
             title: "See the true colours",
             titleTextColour: "",
             subtitle: "Capture the actual world",
+            appCardHeight: 350.0,
             appIcon: "https://cdn.jim-nielsen.com/ios/512/wood-camera-2012-09-18.png?rf=512",
             appName: "iCapture",
             appDescription: "Capture the raw",
@@ -23,10 +24,11 @@ struct ContentView: View
             appBarTextColour: ""
         ),
         AppCardData(
-            backgroundImageName: "https://images.unsplash.com/flagged/photo-1567636948409-45bfd1c905c2?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            backgroundImageName: "https://s.widget-club.com/images/YyiR86zpwIMIfrCZoSs4ulVD9RF3/118f1c14ed0ac2984ba4df8ca6849fa2/b0d2ce90d6a51cb51b55117fdb1969ae.jpg?q=70&w=500",
             title: "Explore the stars",
             titleTextColour: "",
             subtitle: "Discover the universe",
+            appCardHeight: 350.0,
             appIcon: "https://thegophysics.com/wp-content/uploads/2021/04/unnamed-5-1.png?x99075",
             appName: "AstroGuide",
             appDescription: "Your stargazing companion",
@@ -34,13 +36,14 @@ struct ContentView: View
             appBarTextColour: ""
         ),
         AppCardData(
-            backgroundImageName: "https://www.universetoday.com/wp-content/uploads/2009/04/everest_kalapatthar-1280x720.jpg",
-            title: "See the true colours",
+            backgroundImageName: "https://i1.sndcdn.com/artworks-000084757910-7c8zws-t500x500.jpg",
+            title: "BA-NA-NA",
             titleTextColour: "",
-            subtitle: "Capture the actual world",
-            appIcon: "https://cdn.jim-nielsen.com/ios/512/wood-camera-2012-09-18.png?rf=512",
-            appName: "iCapture",
-            appDescription: "Capture the raw",
+            subtitle: "I'm joking! Although it is true. Anyway, have a good one",
+            appCardHeight: 350.0,
+            appIcon: "https://cdn01.justjared.com/wp-content/uploads/headlines/2022/07/minions-the-rise-of-gru-end-credits.jpg",
+            appName: "Minions",
+            appDescription: "Dispicable Me",
             inAppPurchasesText: "In-App Purchases",
             appBarTextColour: ""
         )
@@ -50,16 +53,19 @@ struct ContentView: View
     
     var body: some View
     {
-        ScrollView(.vertical)
+        NavigationStack
         {
-            headingView
-            ForEach(dataForCards)
+            ScrollView(.vertical)
             {
-                cardsData in
-                AppCardView(cardData: cardsData)
+                headingView
+                ForEach(dataForCards)
+                {
+                    cardsData in
+                    AppCardView(cardData: cardsData)
+                }
             }
+            .scrollIndicators(.automatic)
         }
-        .scrollIndicators(.automatic)
     }
     
     //MARK: - Welcome Bar
@@ -95,61 +101,91 @@ struct ContentView: View
 struct AppCardView: View
 {
     let cardData: AppCardData
+    @Namespace var animationNameSpace
+    @State private var navigateToDetail = false
+    
     var body: some View
     {
-        VStack(spacing: 0.0)
+        VStack(spacing: 0)
         {
-            //Image header
+            // Image header
             ZStack(alignment: .topLeading)
             {
                 AsyncImage(url: URL(string: cardData.backgroundImageName))
                 {
-                    image in
-//                    image.image?.resizable()
-//                    image.image?.frame(height: 300)
-//                    image.image?.resizable()
-//                    image.image?.aspectRatio(contentMode: .fill)
-                    image.image?.resizable()
-//                    image.image.clipped()
+                    phase in
+                    switch phase
+                    {
+                        case .empty:
+                            // Placeholder while loading
+                            Color.gray.opacity(0.3)
+                                .frame(height: cardData.appCardHeight)
+//                                .matchedGeometryEffect(id: "backgroundImage", in: animationNameSpace)
+                                .overlay(ProgressView())
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+//                                .matchedGeometryEffect(id: "backgroundImage", in: animationNameSpace)
+                                .clipped()
+                                .frame(width: UIScreen.main.bounds.width - 32, height: cardData.appCardHeight)
+//                                .clipped()
+                        case .failure:
+                            // Image fails to load
+                            Color.secondary
+//                                .matchedGeometryEffect(id: "backgroundImage", in: animationNameSpace)
+                                .frame(height: cardData.appCardHeight)
+                        @unknown default:
+                            Color.secondary
+//                                .matchedGeometryEffect(id: "backgroundImage", in: animationNameSpace)
+                    }
                 }
-//                .frame(height: 300)
-//                .aspectRatio(contentMode: .fill)
-//                .clipped()
-//                Image(AsyncImage(url: URL(string: cardData.backgroundImageName))
-//                      {
-//                    image in
-//                    image.image?.resizable()
-//                })
-//                Image(cardData.backgroundImageName)
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fill)
-//                    .frame(height: 300)
-//                    .clipped()
-                VStack(alignment: .leading)
+                .frame(height: cardData.appCardHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+                
+                VStack(alignment: .leading, spacing: 8)
                 {
                     Spacer()
-                    VStack(alignment: .leading)
+                    
+                    // Title and Subtitle
+                    VStack(alignment: .leading, spacing: 4)
                     {
                         Text(cardData.title)
                             .font(.title)
                             .fontWeight(.bold)
-                            .foregroundStyle(.white)
+                            .foregroundColor(.white)
                         
                         Text(cardData.subtitle)
                             .font(.body)
                             .fontWeight(.regular)
-                            .foregroundStyle(.white)
+                            .foregroundColor(.white)
                     }
                     .padding(16)
-//                    Spacer()
+                    
+                    // App Name and Download Bar
                     AppNameAndDownloadBarView(nameBarCardData: cardData)
                 }
             }
-            .frame(height: 350)
-            .clipShape(.rect(cornerRadius: 15))
-            .padding(5)
+            .frame(height: cardData.appCardHeight)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .padding(.vertical, 8)
+            .shadow(color: Color.black.opacity(0.2), radius: 15, x: 5, y: 5)
+            .onTapGesture
+            {
+                // Action when the card is tapped
+                print("Card tapped")
+                withAnimation(.spring())
+                {
+                    navigateToDetail = true
+                }
+            }
         }
-        .padding(.horizontal, 15.0)
+        .padding(.horizontal, 16)
+        .fullScreenCover(isPresented: $navigateToDetail)
+        {
+            DetailView(namespace: animationNameSpace, slectedCardData: cardData, navigateToDetail: $navigateToDetail)
+//                .transition(.scale)
+        }
     }
 }
 
@@ -170,18 +206,23 @@ struct AppNameAndDownloadBarView: View
             {
                 AsyncImage(url: URL(string: nameBarCardData.appIcon))
                 {
-                    image in
-                    image.image?.resizable()
+                    phase in
+                    switch(phase)
+                    {
+                        case .empty:
+                            // Placeholder while loading
+                            Color.gray.opacity(0.3)
+                                .overlay(ProgressView())
+                        case .success(let image):
+                            image.resizable()
+//                        image.aspectRatio(contentMode: .fit)
+                        
+                        default: Color.secondary
+                    }
                 }
                 .frame(width: 50, height: 50)
                 .clipped()
                 .clipShape(.rect(cornerRadius: 10))
-//                Image(nameBarCardData.appIcon)
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fill)
-//                    .frame(width: 50, height: 50)
-//                    .clipped()
-//                    .clipShape(.rect(cornerRadius: 10))
                 
                 VStack(alignment: .leading)
                 {
@@ -195,43 +236,12 @@ struct AppNameAndDownloadBarView: View
                 
                 Spacer()
                 
-//                VStack(alignment: .center)
-//                {
-//                    Text("")
-//                    //A view given for making the get button to move to more centre or towards the bottom.
-//                    Button
-//                    {
-//                        print("Download pressed")
-//                    }
-//                    label:
-//                    {
-//                        Text("Get")
-//                            .fontWeight(.semibold)
-//                            .font(.system(size: 12, weight: .bold, design: .default))
-//                            .foregroundStyle(.white)
-//                            .padding(.vertical, 5)
-//                            .padding(.horizontal, 12)
-//                    }
-//                    .padding(10.0)
-////                    .background(Color.white.blendMode(.softLight))
-//                    .background(Color.white.secondary)
-//                    .frame(width:65, height: 25)
-//                    .clipShape(.capsule)
-//                    
-//                    if nameBarCardData.inAppPurchasesText != ""
-//                    {
-//                        Text("In-App Purchases")
-//                            .font(.system(size: 8, weight: .regular, design: .default))
-//                            .foregroundStyle(.white)
-//                    }
-//                }
-                
                 VStack
                 {
-                    Text("")
+                    Text("")    //A view added for making the get button to move to more centre or towards the bottom.
                     if isDownloading
                     {
-                        ZStack
+                        ZStack(alignment: .center)
                         {
                             Circle()
                                 .stroke(lineWidth: 3)
@@ -247,7 +257,7 @@ struct AppNameAndDownloadBarView: View
                             
                             Text(Image(systemName: "stop.fill")).foregroundStyle(.blue)
                         }
-                        .frame(width: 30, height: 30)
+                        .frame(width: 65, height: 25)
                     }
                     else
                     {
@@ -265,7 +275,7 @@ struct AppNameAndDownloadBarView: View
                         }
                     }
                     
-                    if nameBarCardData.inAppPurchasesText != ""
+                    if !nameBarCardData.inAppPurchasesText.isEmpty
                     {
                         Text("In-App Purchases")
                             .font(.system(size: 8, weight: .regular, design: .default))
@@ -282,6 +292,7 @@ struct AppNameAndDownloadBarView: View
     {
         isDownloading = true
         progress = 0.0
+        print("Download started")
         
         // Simulate a download
         Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true)
@@ -297,11 +308,10 @@ struct AppNameAndDownloadBarView: View
     }
 }
 
+
 //MARK: - Preview
 
 #Preview
 {
     ContentView()
 }
-
-
